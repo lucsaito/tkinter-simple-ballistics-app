@@ -17,45 +17,39 @@ def center_window(frame):  #Takes a tk.Frame as input and return its centralized
     return geometry
 
 def calculate_time(frame):
-
     g = 9.8
-    velocity = float(frame.velocityEntry.get())
-    angle = float(frame.angleEntry.get()) * 0.0174533
-    height = float(frame.heightEntry.get())
+    if (frame.velocityEntry.get() == '' or
+    frame.angleEntry.get() == '' or
+    frame.heightEntry.get() == ''):
+        print('Missing values')
+        frame.warning.grid(row=4, column=1, sticky=tk.W)
 
-    y_vel = float(velocity) * math.sin(angle)
-    eq1 = 4*(y_vel**2) + 8*g*height     #gt^2 -2vot - 2height = 0
-    delta = math.sqrt(eq1)
-    tempo = (2*y_vel + delta)/(2*g)
+    else:
+        velocity = float(frame.velocityEntry.get())
+        angle = float(frame.angleEntry.get()) * 0.0174533
+        height = float(frame.heightEntry.get())
 
-    frame.time.config(text="{} s".format(str(tempo)))
+        y_vel = float(velocity) * math.sin(angle)
+        eq1 = 4 * (y_vel ** 2) + 8 * g * height  # gt^2 -2vot - 2height = 0
+        delta = math.sqrt(eq1)
+        tempo = round((2 * y_vel + delta) / (2 * g), 2)
 
-def config_main_layout(frame):
-    frame.velocityLabel.grid(row=1, column=0, sticky=tk.W)
-    frame.velocityEntry.grid(row=1, column=1)
-    frame.angleLabel.grid(row=2, column=0, sticky=tk.W)
-    frame.angleEntry.grid(row=2, column=1)
-    frame.heightLabel.grid(row=3, column=0, sticky=tk.W)
-    frame.heightEntry.grid(row=3, column=1)
-
-    frame.timeoffallLabel.grid(row=4, column=0, sticky=tk.W)
-    frame.time.grid(row=4, column=1, sticky=tk.W)
-    frame.calculate.grid(row=5, column=2, sticky=tk.E)
-
-
-
+        frame.time.config(text="{} s".format(str(tempo)))
+        frame.warning.grid_forget()
 class Main(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
         self.master = master
 
-        self.title = tk.Label(self, text="Properties:")
+        self.title = tk.Label(self, text="Initial properties:")
         self.title.grid(row = 0, column = 0, sticky = tk.W)
 
-        self.velocityLabel = tk.Label(self, text="Initial velocity:")
+        self.velocityLabel = tk.Label(self, text="Initial velocity (m/s):")
         self.angleLabel = tk.Label(self, text="Angle of velocity vector(degrees):")
-        self.heightLabel = tk.Label(self, text="Initial height:")
-        self.timeoffallLabel = tk.Label(self, text="Time of fall:")
+        self.heightLabel = tk.Label(self, text="Initial height (m):")
+        self.timeoffallLabel = tk.Label(self, text="Time of fall (s):")
+
+        self.warning = tk.Label(self, text="Missing values.")
 
         self.time = tk.Label(self, text = "")
         self.calculate = tk.Button(self, text="Calculate", command =lambda : calculate_time(self))
@@ -63,7 +57,19 @@ class Main(tk.Frame):
         self.velocityEntry = tk.Entry(self)
         self.angleEntry = tk.Entry(self)
         self.heightEntry = tk.Entry(self)
-        self.layout = config_main_layout(self)
+        self.layout = self.config_main_layout()
+
+    def config_main_layout(self):
+        self.velocityLabel.grid(row=1, column=0, sticky=tk.W)
+        self.velocityEntry.grid(row=1, column=1)
+        self.angleLabel.grid(row=2, column=0, sticky=tk.W)
+        self.angleEntry.grid(row=2, column=1)
+        self.heightLabel.grid(row=3, column=0, sticky=tk.W)
+        self.heightEntry.grid(row=3, column=1)
+
+        self.timeoffallLabel.grid(row=4, column=0, sticky=tk.W)
+        self.time.grid(row=4, column=1, sticky=tk.W)
+        self.calculate.grid(row=5, column=2, sticky=tk.E)
 
 class MainApplication(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -72,7 +78,7 @@ class MainApplication(tk.Frame):
         self.master.resizable(False, False)
 
 
-        self.master.title("Ballistics=")
+        self.master.title("Ballistics")
         self.master.geometry(center_window(self))
 
         self.title = tk.Label(self, text="Falling time of a projectile.")
